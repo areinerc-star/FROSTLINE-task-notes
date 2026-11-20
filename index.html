@@ -1,0 +1,647 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>FROSTLINE Task Notes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Antonio:wght@500;600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a calm white studio desk. Wordmark top-left with a quiet status read-out right; priority lanes as soft tinted trays; the follow-up board as a horizontally scrolling stage rail; cards are white sheets that lift on hover. */
+:root {
+  color-scheme: light;
+  --canvas: #f5f6f7;
+  --surface: #ffffff;
+  --tray: #eceef0;
+  --ink: #1d1f23;
+  --ink-2: #3a3d43;
+  --mute: #6d727a;
+  --line: #e2e5e8;
+  --line-2: #d3d7dc;
+  --frost: #3f6b88;
+  --frost-soft: #e6eef4;
+  --p1: #b4483a; --p1-soft: #f7e7e3;
+  --p2: #a96c1c; --p2-soft: #f6ecdc;
+  --p3: #3f6b88; --p3-soft: #e6eef4;
+  --p4: #7b8088; --p4-soft: #eceef0;
+  --ok: #3c7a52; --ok-soft: #e3f0e7;
+  --shadow: 0 1px 2px rgb(29 31 35 / .04), 0 2px 8px rgb(29 31 35 / .04);
+  --shadow-lift: 0 2px 4px rgb(29 31 35 / .05), 0 12px 28px -8px rgb(29 41 55 / .16);
+  --display: "Antonio", "Oswald", "Arial Narrow", Impact, sans-serif;
+  --ui: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+}
+* { box-sizing: border-box }
+html { background: var(--canvas) }
+body { background: var(--canvas); color: var(--ink); font-family: var(--ui); font-size: 15px; line-height: 1.5; margin: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 72px;
+  -webkit-font-smoothing: antialiased }
+.wrap { max-width: 1320px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px }
+button, input, select, textarea { font: inherit; color: inherit }
+button { cursor: pointer }
+:focus-visible { outline: 2px solid var(--frost); outline-offset: 2px; border-radius: 6px }
+
+/* header */
+header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 20px 32px }
+@media (max-width: 720px) { header { grid-template-columns: minmax(0, 1fr) } }
+.brand { display: flex; flex-direction: column; gap: 6px }
+.mark { font-family: var(--display); font-weight: 700; font-size: clamp(40px, 7vw, 64px); line-height: .9; letter-spacing: .01em; margin: 0; color: var(--ink) }
+.sub { font-size: 15px; color: var(--mute); margin: 0 }
+.sub b { color: var(--ink-2); font-weight: 500 }
+.stats { display: flex; flex-wrap: wrap; gap: 8px }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; min-width: 104px; display: flex; flex-direction: column; gap: 2px; box-shadow: var(--shadow) }
+.stat b { font-family: var(--display); font-size: 26px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums }
+.stat span { font-size: 12.5px; color: var(--mute) }
+.stat.alert b { color: var(--p1) }
+.status { grid-column: 1 / -1; font-size: 13px; color: var(--mute); display: flex; align-items: center; gap: 8px; margin-top: -8px }
+.status i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-2) }
+.status.live i { background: var(--ok) }
+.status.bad { color: var(--p1) } .status.bad i { background: var(--p1) }
+
+.note-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; background: var(--frost-soft); color: var(--ink-2); border-radius: 12px; padding: 12px 16px; font-size: 14px }
+
+/* sections */
+.sec { display: flex; flex-direction: column; gap: 18px; min-width: 0 }
+.secHead { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px }
+.secHead > div { display: flex; flex-direction: column; gap: 4px; min-width: 0 }
+.secHead h2 { font-family: var(--display); font-size: clamp(26px, 3.6vw, 34px); font-weight: 600; letter-spacing: .02em; text-transform: uppercase; margin: 0; line-height: 1 }
+.secHead p { margin: 0; color: var(--mute); font-size: 14.5px; max-width: 62ch }
+
+.btn { font-weight: 500; font-size: 14px; border-radius: 10px; padding: 9px 16px; border: 1px solid transparent; background: var(--ink); color: #fff; transition: transform .2s var(--ease), background .2s var(--ease), box-shadow .2s var(--ease); min-height: 40px }
+.btn:hover { background: #2c2f35; box-shadow: var(--shadow-lift) }
+.btn:active { transform: translateY(1px) }
+.btn.soft { background: var(--surface); color: var(--ink); border-color: var(--line-2) }
+.btn.soft:hover { background: var(--surface); border-color: var(--mute); box-shadow: none }
+.btn.danger { background: transparent; color: var(--p1); border-color: transparent; padding-inline: 8px }
+.btn.danger:hover { background: var(--p1-soft); box-shadow: none }
+.btn.danger.arm { background: var(--p1); color: #fff }
+
+/* lanes */
+.lanes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: start }
+@media (max-width: 1080px) { .lanes { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 600px) { .lanes { grid-template-columns: minmax(0, 1fr) } }
+.lane { background: var(--tray); border-radius: 18px; padding: 10px; display: flex; flex-direction: column; gap: 10px; min-width: 0 }
+.trayHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 2px }
+.trayHead b { font-weight: 600; font-size: 14.5px; display: flex; align-items: center; gap: 8px }
+.trayHead b i { width: 8px; height: 8px; border-radius: 50% }
+.count { font-family: var(--mono); font-size: 12px; color: var(--mute); background: var(--surface); border-radius: 6px; padding: 1px 7px; font-variant-numeric: tabular-nums }
+.lane[data-p="1"] .trayHead b i { background: var(--p1) }
+.lane[data-p="2"] .trayHead b i { background: var(--p2) }
+.lane[data-p="3"] .trayHead b i { background: var(--p3) }
+.lane[data-p="4"] .trayHead b i { background: var(--p4) }
+.empty { border: 1.5px dashed var(--line-2); border-radius: 12px; color: var(--mute); padding: 18px 12px; font-size: 13.5px; text-align: center }
+
+/* board */
+.boardScroll { overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x proximity; scrollbar-width: thin }
+.board { display: grid; grid-template-columns: repeat(8, 264px); gap: 12px; width: max-content; align-items: start }
+.col { background: var(--tray); border-radius: 18px; padding: 10px; display: flex; flex-direction: column; gap: 10px; scroll-snap-align: start; min-width: 0 }
+.col .trayHead { flex-direction: column; align-items: stretch; gap: 8px }
+.col .trayHead .row { display: flex; justify-content: space-between; align-items: center; gap: 8px }
+.col .trayHead b small { font-family: var(--mono); font-weight: 400; font-size: 11.5px; color: var(--mute) }
+.track { height: 4px; border-radius: 4px; background: var(--line-2); overflow: hidden }
+.track span { display: block; height: 100%; background: var(--frost); border-radius: 4px }
+.col[data-s="7"] .track span { background: var(--ok) }
+
+/* cards */
+.card { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; box-shadow: var(--shadow);
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s var(--ease) }
+.card:hover, .card:focus-within { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: var(--line-2) }
+.card.sample { background: linear-gradient(var(--surface), var(--surface)) padding-box, repeating-linear-gradient(135deg, var(--line-2) 0 6px, transparent 6px 10px) border-box; border: 1px dashed var(--line-2) }
+.cardTop { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 22px }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; border-radius: 7px; padding: 2px 8px 2px 7px }
+.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor }
+.pill.p1 { color: var(--p1); background: var(--p1-soft) } .pill.p2 { color: var(--p2); background: var(--p2-soft) }
+.pill.p3 { color: var(--p3); background: var(--p3-soft) } .pill.p4 { color: var(--p4); background: var(--p4-soft) }
+.pill.stage { color: var(--frost); background: var(--frost-soft) }
+.pill.paid { color: var(--ok); background: var(--ok-soft) }
+.ex { font-size: 11.5px; color: var(--mute); font-style: italic }
+.card h3 { font-weight: 600; font-size: 16px; line-height: 1.3; margin: 0; overflow-wrap: anywhere; text-wrap: pretty; letter-spacing: -.005em }
+.meta { font-size: 13px; color: var(--mute); margin: -2px 0 0; display: flex; flex-wrap: wrap; gap: 2px 12px }
+.meta .late { color: var(--p1); font-weight: 500 }
+.noteTxt { font-size: 13.5px; color: var(--ink-2); margin: 0; background: var(--canvas); border-radius: 8px; padding: 8px 10px; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden }
+.foot { display: flex; justify-content: space-between; gap: 8px; font-family: var(--mono); font-size: 11.5px; color: var(--mute); padding-top: 2px; font-variant-numeric: tabular-nums }
+
+/* thumbnails */
+.thumb { display: block; position: relative; margin: -14px -14px 4px; width: calc(100% + 28px); border: 0; padding: 0; background: var(--canvas); border-radius: 13px 13px 0 0; overflow: hidden; aspect-ratio: 4 / 3; cursor: zoom-in }
+.thumb img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .6s var(--ease) }
+.card:hover .thumb img { transform: scale(1.035) }
+.thumb.add { aspect-ratio: 16 / 6; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--mute); font-size: 12.5px; font-weight: 500;
+  background: repeating-linear-gradient(135deg, var(--canvas) 0 10px, #f0f2f4 10px 20px); border-bottom: 1px dashed var(--line-2); transition: color .2s var(--ease) }
+.thumb.add svg { width: 30px; height: 30px; stroke: currentColor; fill: none; stroke-width: 1.4 }
+.thumb.add:hover { color: var(--frost) }
+.card.drag { outline: 2px dashed var(--frost); outline-offset: 3px }
+.card.busy .thumb::after { content: "Uploading image"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgb(255 255 255 / .82); color: var(--ink-2); font-size: 13px; font-weight: 500 }
+.thumbEdit { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 14px; align-items: center }
+@media (max-width: 420px) { .thumbEdit { grid-template-columns: 1fr } }
+.thumbBox { aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden; background: repeating-linear-gradient(135deg, var(--canvas) 0 10px, #f0f2f4 10px 20px); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--mute); font-size: 12px; max-width: 100% }
+.thumbBox img { width: 100%; height: 100%; object-fit: cover; display: block }
+.thumbSide { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; min-width: 0 }
+.thumbSide .r { display: flex; flex-wrap: wrap; gap: 6px }
+.f .lbl { font-size: 13px; font-weight: 500; color: var(--ink-2) }
+.viewer { position: fixed; inset: 0; z-index: 50; background: rgb(20 23 28 / .82); display: flex; align-items: center; justify-content: center; padding: max(24px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); cursor: zoom-out }
+.viewer img { max-width: min(1100px, 100%); max-height: 100%; border-radius: 12px; box-shadow: 0 30px 80px -20px rgb(0 0 0 / .5); background: #fff }
+
+/* hover controls */
+.hov { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .35s var(--ease), opacity .25s var(--ease) }
+.hov > div { overflow: hidden; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 0 }
+.card:hover .hov, .card:focus-within .hov { grid-template-rows: 1fr; opacity: 1 }
+@media (hover: none) { .hov { grid-template-rows: 1fr; opacity: 1 } }
+.seg { display: inline-flex; background: var(--canvas); border: 1px solid var(--line); border-radius: 9px; padding: 2px; gap: 2px }
+.seg button { border: 0; background: transparent; font-size: 12px; font-weight: 500; color: var(--mute); padding: 4px 8px; border-radius: 7px; min-height: 28px; transition: background .2s var(--ease), color .2s var(--ease) }
+.seg button:hover:not(:disabled) { color: var(--ink); background: var(--surface) }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow) }
+.seg button[aria-pressed="true"][data-v="1"] { color: var(--p1) } .seg button[aria-pressed="true"][data-v="2"] { color: var(--p2) }
+.seg button[aria-pressed="true"][data-v="3"] { color: var(--p3) }
+.mv { border: 1px solid var(--line); background: var(--canvas); border-radius: 9px; font-size: 12px; font-weight: 500; padding: 4px 10px; min-height: 32px; color: var(--ink-2); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: background .2s var(--ease), border-color .2s var(--ease) }
+.mv:hover:not(:disabled) { background: var(--surface); border-color: var(--line-2) }
+.mv.fwd { background: var(--ink); color: #fff; border-color: var(--ink) }
+.mv.fwd:hover:not(:disabled) { background: #2c2f35 }
+.mv:disabled, .seg button:disabled { opacity: .35; cursor: default }
+.openBtn { margin-left: auto; border: 0; background: transparent; font-size: 12.5px; font-weight: 500; color: var(--frost); padding: 4px 6px; border-radius: 7px; min-height: 28px }
+.openBtn:hover { background: var(--frost-soft) }
+
+/* side sheet */
+dialog { border: 0; padding: 0; margin: 0 0 0 auto; height: 100dvh; max-height: 100dvh; width: min(520px, 100vw); background: var(--surface); color: var(--ink); box-shadow: -24px 0 60px -20px rgb(29 41 55 / .28) }
+dialog[open] { animation: sheet .45s var(--ease) }
+@keyframes sheet { from { transform: translateX(32px); opacity: 0 } }
+dialog::backdrop { background: rgb(29 33 40 / .28); backdrop-filter: blur(2px) }
+.dlg { display: flex; flex-direction: column; gap: 22px; padding: max(22px, env(safe-area-inset-top, 0px)) max(22px, env(safe-area-inset-right, 0px)) max(22px, env(safe-area-inset-bottom, 0px)) 22px; min-height: 100% }
+.dlgHead { display: flex; justify-content: space-between; align-items: center; gap: 12px }
+.dlgHead h2 { font-family: var(--display); font-size: 26px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; margin: 0; line-height: 1 }
+.x { border: 1px solid var(--line); background: var(--surface); border-radius: 9px; font-size: 13px; padding: 6px 12px; min-height: 36px }
+.x:hover { border-color: var(--line-2) }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px }
+@media (max-width: 480px) { .fields { grid-template-columns: 1fr } }
+.f { display: flex; flex-direction: column; gap: 6px; min-width: 0 }
+.f.wide { grid-column: 1 / -1 }
+.f label, .logHead { font-size: 13px; font-weight: 500; color: var(--ink-2) }
+.f input, .f select, .f textarea, .addLog input { background: var(--surface); border: 1px solid var(--line-2); border-radius: 10px; padding: 9px 12px; width: 100%; min-height: 42px; transition: border-color .2s var(--ease), box-shadow .2s var(--ease) }
+.f textarea { resize: vertical; min-height: 84px; line-height: 1.5 }
+.f input:focus, .f select:focus, .f textarea:focus, .addLog input:focus { outline: none; border-color: var(--frost); box-shadow: 0 0 0 3px var(--frost-soft) }
+.f .hint { font-size: 12px; color: var(--mute) }
+.logBox { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 18px }
+.logHead { display: flex; justify-content: space-between; align-items: baseline }
+.logHead span { font-family: var(--mono); font-size: 11.5px; color: var(--mute); font-weight: 400 }
+.addLog { display: flex; gap: 8px }
+.addLog input { flex: 1; min-width: 0 }
+ol.log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; position: relative }
+ol.log li { position: relative; padding: 2px 0 14px 22px; display: flex; flex-direction: column; gap: 1px; font-size: 14px; color: var(--ink-2) }
+ol.log li::before { content: ""; position: absolute; left: 4px; top: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-2) }
+ol.log li::after { content: ""; position: absolute; left: 7px; top: 18px; bottom: 0; width: 1px; background: var(--line-2) }
+ol.log li:last-child::after { display: none }
+ol.log li.auto { color: var(--mute) }
+ol.log li.auto::before { background: var(--surface); border: 1.5px solid var(--line-2); width: 7px; height: 7px; box-sizing: content-box; left: 2.5px; top: 5.5px }
+ol.log li time { font-family: var(--mono); font-size: 11.5px; color: var(--mute); font-variant-numeric: tabular-nums }
+ol.log li.none { padding-left: 0; color: var(--mute) } ol.log li.none::before, ol.log li.none::after { display: none }
+.dlgFoot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: auto; border-top: 1px solid var(--line); padding-top: 16px }
+.dlgFoot .r { display: flex; gap: 8px; margin-left: auto }
+.err { color: var(--p1); font-size: 13.5px; margin: -8px 0 0 }
+
+footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; font-size: 13px; color: var(--mute); border-top: 1px solid var(--line); padding-top: 16px }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important } .card:hover, .card:focus-within { transform: none } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1 class="mark">FROSTLINE</h1>
+      <p class="sub"><b>Task notes.</b> What to do first, and where every order stands.</p>
+    </div>
+    <div class="stats" id="stats" aria-label="Summary"></div>
+    <div class="status" id="status" aria-live="polite"><i></i><span>Connecting</span></div>
+  </header>
+
+  <div class="note-bar" id="sampleBanner" hidden>
+    <span>The cards with dashed edges are examples. Remove them when you're ready to add your own.</span>
+    <button class="btn soft" id="clearSamples" type="button">Remove examples</button>
+  </div>
+
+  <section class="sec" aria-labelledby="hTasks">
+    <div class="secHead">
+      <div>
+        <h2 id="hTasks">Task priority</h2>
+        <p>Hover a card to change its level. Each change is added to the card's log with the time.</p>
+      </div>
+      <button class="btn" type="button" data-new="task">New task</button>
+    </div>
+    <div class="lanes" id="lanes"></div>
+  </section>
+
+  <section class="sec" aria-labelledby="hFollow">
+    <div class="secHead">
+      <div>
+        <h2 id="hFollow">Follow up</h2>
+        <p>Orders grouped by stage, from mockup to the client's review content. Hover a card to move it to the next stage or back one.</p>
+      </div>
+      <button class="btn" type="button" data-new="follow">New follow-up</button>
+    </div>
+    <div class="boardScroll"><div class="board" id="board"></div></div>
+  </section>
+
+  <footer>
+    <span>Open a card to edit its note and add log entries.</span>
+    <span>Crafted for dreamers. Built for believers.</span>
+  </footer>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <form class="dlg" id="form" method="dialog">
+    <div class="dlgHead">
+      <h2 id="dlgTitle">Task</h2>
+      <button class="x" type="button" id="close">Close</button>
+    </div>
+    <div class="fields">
+      <div class="f wide"><label for="fTitle">Title</label><input id="fTitle" required maxlength="120" placeholder="Send revised mockup to client"></div>
+      <div class="f"><label for="fClient">Client or team</label><input id="fClient" maxlength="80" placeholder="Running club name"></div>
+      <div class="f"><label for="fDue">Due date</label><input id="fDue" type="date"></div>
+      <div class="f" id="wrapPri"><label for="fPri">Priority</label><select id="fPri"></select></div>
+      <div class="f" id="wrapStage"><label for="fStage">Stage</label><select id="fStage"></select></div>
+      <div class="f" id="wrapQty"><label for="fQty">Order</label><input id="fQty" maxlength="80" placeholder="40 singlets, sublimation"></div>
+      <div class="f wide" id="wrapThumb">
+        <span class="lbl">Thumbnail</span>
+        <div class="thumbEdit">
+          <div class="thumbBox" id="thumbBox">No image</div>
+          <div class="thumbSide">
+            <div class="r">
+              <button class="btn soft" type="button" id="thumbUp">Upload image</button>
+              <button class="btn danger" type="button" id="thumbRm">Remove</button>
+            </div>
+            <span class="hint" id="thumbHint">Mockup, layout proof or product photo. JPG, PNG or WebP.</span>
+          </div>
+        </div>
+      </div>
+      <div class="f wide"><label for="fNote" id="noteLbl">Priority note</label><textarea id="fNote" rows="3" maxlength="600" placeholder="Why this level, what's blocking it, what's next"></textarea></div>
+    </div>
+    <div class="logBox">
+      <div class="logHead">Log <span id="logCount"></span></div>
+      <div class="addLog">
+        <input id="fLog" maxlength="300" placeholder="Client approved the front design" aria-label="New log entry">
+        <button class="btn soft" type="button" id="addLog">Add</button>
+      </div>
+      <ol class="log" id="log"></ol>
+    </div>
+    <p class="err" id="err" hidden></p>
+    <div class="dlgFoot">
+      <button class="btn danger" type="button" id="del">Delete</button>
+      <div class="r">
+        <button class="btn soft" type="button" id="cancel">Cancel</button>
+        <button class="btn" type="submit" id="save">Save</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<script>
+/* Standalone storage: replaces the claude.ai db/assets runtime with this browser's localStorage. */
+(function () {
+  const KEY = "frostline-task-notes:v1";
+  const SAMPLES = {"ex1": {"client": "Example client", "createdAt": "2026-11-04T02:00:00Z", "due": "2026-11-07", "kind": "task", "log": [{"at": "2026-11-05T09:10:00Z", "auto": true, "text": "Priority High → Urgent"}, {"at": "2026-11-05T09:05:00Z", "text": "Client messaged: back logo too small"}, {"at": "2026-11-04T02:00:00Z", "auto": true, "text": "Created as High"}], "note": "Client wants the back print bigger before they confirm the list. Blocking downpayment.", "priority": 1, "sample": true, "title": "Send revised singlet mockup", "updatedAt": "2026-11-05T09:10:00Z"}, "ex2": {"client": "FROSTLINE page", "createdAt": "2026-11-04T05:00:00Z", "due": "2026-11-09", "kind": "task", "log": [{"at": "2026-11-04T05:00:00Z", "auto": true, "text": "Created as High"}], "note": "Use the Caption Desk. Hook + one line + WEAR YOUR CONFIDENCE.", "priority": 2, "sample": true, "title": "Post Oct drop restock caption", "updatedAt": "2026-11-04T05:00:00Z"}, "ex3": {"client": "Supplier", "createdAt": "2026-11-03T03:00:00Z", "kind": "task", "log": [{"at": "2026-11-03T03:00:00Z", "auto": true, "text": "Created as Normal"}], "note": "Stock is fine until mid-month. Check prices first.", "priority": 3, "sample": true, "title": "Reorder black tank blanks", "updatedAt": "2026-11-03T03:00:00Z"}, "ex4": {"client": "Example running club", "createdAt": "2026-11-05T04:00:00Z", "due": "2026-11-20", "kind": "follow", "log": [{"at": "2026-11-05T17:56:14.536Z", "auto": true, "text": "Stage Mockup → List Finalization"}, {"at": "2026-11-05T04:00:00Z", "auto": true, "text": "Created at Mockup"}], "note": "Waiting on final color pick: black/white or all-black.", "qty": "40 singlets, sublimation", "sample": true, "stage": 1, "thumb": {"id": "ex4", "url": "/images/ex4.jpg"}, "title": "Team running singlets", "updatedAt": "2026-11-05T17:56:14.536Z"}, "ex5": {"client": "Example race organizer", "createdAt": "2026-11-01T02:00:00Z", "due": "2026-11-15", "kind": "follow", "log": [{"at": "2026-11-04T08:00:00Z", "auto": true, "text": "Stage List Finalization → For Downpayment"}, {"at": "2026-11-04T07:55:00Z", "text": "Final name list received (120 names)"}, {"at": "2026-11-01T02:00:00Z", "auto": true, "text": "Created at Mockup"}], "note": "50% downpayment pending. Name list finalized Nov 4.", "qty": "120 shirts", "sample": true, "stage": 2, "thumb": {"id": "ex5", "url": "/images/ex5.jpg"}, "title": "Event finisher shirts", "updatedAt": "2026-11-04T08:00:00Z"}, "ex6": {"client": "Example gym", "createdAt": "2026-10-25T02:00:00Z", "due": "2026-11-08", "kind": "follow", "log": [{"at": "2026-11-05T10:00:00Z", "auto": true, "text": "Stage Production → For Pickup"}], "note": "Balance ₱3,750 due on pickup.", "qty": "25 tanks", "sample": true, "stage": 6, "thumb": {"id": "ex6", "url": "/images/ex6.jpg"}, "title": "Training tanks reorder", "updatedAt": "2026-11-05T10:00:00Z"}};
+  const read = () => { try { const r = localStorage.getItem(KEY); if (r) return JSON.parse(r); } catch (e) {} return null; };
+  let data = read();
+  if (!data) { data = JSON.parse(JSON.stringify(SAMPLES)); try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} }
+  const subs = new Set();
+  const emit = () => subs.forEach(cb => cb({ docs: Object.keys(data).map(id => ({ id, data: () => data[id] })), metadata: { fromCache: false } }));
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) { const err = new Error("quota"); err.code = "quota_exceeded"; throw err; } };
+  const db = { collection: () => ({
+    onSnapshot(cb) { subs.add(cb); setTimeout(() => cb({ docs: Object.keys(data).map(id => ({ id, data: () => data[id] })), metadata: { fromCache: false } }), 0); return () => subs.delete(cb); },
+    doc: id => ({
+      async set(body) { const prev = data[id]; data[id] = JSON.parse(JSON.stringify(body)); try { save(); } catch (e) { if (prev) data[id] = prev; else delete data[id]; throw e; } },
+      async delete() { delete data[id]; save(); }
+    })
+  }) };
+  const toDataUrl = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(b); });
+  const assets = {
+    async upload(blob) { const url = await toDataUrl(blob); return { id: "u" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), url }; },
+    async delete() {}
+  };
+  window.claude = { use: async name => name === "db" ? db : name === "assets" ? assets : name === "user" ? { can: async () => true } : null };
+})();
+</script>
+<script>
+const PRI = [null, "Urgent", "High", "Normal", "Low"];
+const STAGES = ["Mockup", "List finalization", "For downpayment", "For layout", "Printing", "Production", "For pickup", "For review content (recommendation from client)"];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+let items = [];
+let db = null, col = null, canWrite = true, live = false;
+
+/* ---------- time ---------- */
+const fmtTime = iso => { try { return new Date(iso).toLocaleString("en-PH", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch { return ""; } };
+const fmtDay = d => d ? new Date(d + "T00:00:00").toLocaleDateString("en-PH", { month: "short", day: "numeric" }) : "";
+const isLate = d => d && new Date(d + "T23:59:59") < new Date();
+const ago = iso => {
+  if (!iso) return ""; const m = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (m < 1) return "just now"; if (m < 60) return m + "m ago"; const h = Math.round(m / 60);
+  if (h < 24) return h + "h ago"; const d = Math.round(h / 24); return d < 30 ? d + "d ago" : fmtDay(iso.slice(0, 10));
+};
+const now = () => new Date().toISOString();
+
+/* ---------- thumbnails ---------- */
+let assets = null;
+const busy = new Set();
+const canUpload = () => !!assets && canWrite;
+const thumbSrc = t => t ? (t.url || (t.id ? "/_blob/" + t.id : "")) : "";
+const SHIRT = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M11 5l-6 3 2 6 3-1v14h12V13l3 1 2-6-6-3c-1 2-3 3-5 3s-4-1-5-3z"/><path d="M16 15v6M13 18h6"/></svg>`;
+function thumbHtml(it) {
+  const src = thumbSrc(it.thumb);
+  if (src) return `<button class="thumb" type="button" data-act="view" aria-label="View image for ${esc(it.title)}"><img src="${esc(src)}" alt="Thumbnail for ${esc(it.title)}" loading="lazy"></button>`;
+  if (canUpload()) return `<button class="thumb add" type="button" data-act="upload">${SHIRT}<span>Add mockup image</span></button>`;
+  return "";
+}
+async function shrink(file) {
+  try {
+    const img = await createImageBitmap(file);
+    const max = 1400, k = Math.min(1, max / Math.max(img.width, img.height));
+    if (k === 1 && file.size < 1.5e6) return file;
+    const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    return await new Promise(r => c.toBlob(b => r(b || file), "image/jpeg", 0.86));
+  } catch { return file; }
+}
+async function uploadImage(file) {
+  if (!file || !/^image\//.test(file.type)) throw new Error("type");
+  const r = await assets.upload(await shrink(file));
+  return { id: r.id, url: r.url };
+}
+function dropAsset(t) { if (t && t.id && assets) assets.delete(t.id).catch(() => {}); }
+const fileIn = Object.assign(document.createElement("input"), { type: "file", accept: "image/*", hidden: true });
+document.body.append(fileIn);
+let pickFor = null;
+function pick(target) { pickFor = target; fileIn.value = ""; fileIn.click(); }
+fileIn.addEventListener("change", () => { const f = fileIn.files[0]; if (!f) return; pickFor === "sheet" ? sheetUpload(f) : cardUpload(pickFor, f); });
+async function cardUpload(id, file) {
+  if (!canUpload()) return;
+  busy.add(id); render();
+  try {
+    const t = await uploadImage(file);
+    const it = items.find(x => x.id === id);
+    if (it) { const old = it.thumb; await commit({ ...it, thumb: t }, old ? "Thumbnail replaced" : "Thumbnail added"); dropAsset(old); }
+  } catch (e) { setStatus(e && e.message === "type" ? "That file isn't an image. Use a JPG, PNG or WebP." : "Couldn't upload the image. Try a smaller file.", "bad"); }
+  busy.delete(id); render();
+}
+function viewImage(src, alt) {
+  const v = document.createElement("div"); v.className = "viewer"; v.tabIndex = -1;
+  v.innerHTML = `<img src="${esc(src)}" alt="${esc(alt)}">`;
+  const close = () => { v.remove(); document.removeEventListener("keydown", key); };
+  const key = e => { if (e.key === "Escape") close(); };
+  v.addEventListener("click", close); document.addEventListener("keydown", key);
+  document.body.append(v); v.focus();
+}
+document.addEventListener("dragover", e => {
+  const c = e.target.closest?.(".card[data-kind=follow]");
+  if (!c || !canUpload() || ![...(e.dataTransfer?.types || [])].includes("Files")) return;
+  e.preventDefault(); document.querySelectorAll(".card.drag").forEach(x => x !== c && x.classList.remove("drag")); c.classList.add("drag");
+});
+document.addEventListener("dragleave", e => { const c = e.target.closest?.(".card"); if (c && !c.contains(e.relatedTarget)) c.classList.remove("drag"); });
+document.addEventListener("drop", e => {
+  const c = e.target.closest?.(".card[data-kind=follow]"); document.querySelectorAll(".card.drag").forEach(x => x.classList.remove("drag"));
+  if (!c || !canUpload()) return; e.preventDefault();
+  const f = [...(e.dataTransfer?.files || [])].find(f => f.type.startsWith("image/")); if (f) cardUpload(c.dataset.id, f);
+});
+
+/* ---------- render ---------- */
+function card(it) {
+  const isTask = it.kind === "task";
+  const s = it.stage ?? 0, p = it.priority || 3;
+  const late = !(isTask ? false : s === 7) && isLate(it.due);
+  const meta = [it.client ? `<span>${esc(it.client)}</span>` : "", it.qty ? `<span>${esc(it.qty)}</span>` : "",
+    it.due ? `<span class="${late ? "late" : ""}">${late ? "Overdue, " : "Due "}${fmtDay(it.due)}</span>` : ""].join("");
+  const logN = (it.log || []).length;
+  const dis = canWrite ? "" : "disabled";
+  let ctrls;
+  if (isTask) {
+    ctrls = `<div class="seg" role="group" aria-label="Priority level">${[1, 2, 3, 4].map(v =>
+      `<button type="button" data-act="pri" data-v="${v}" aria-pressed="${p === v}" ${dis}>${PRI[v]}</button>`).join("")}</div>`;
+  } else {
+    ctrls = `<button class="mv" type="button" data-act="stage" data-v="${s - 1}" ${s <= 0 || !canWrite ? "disabled" : ""} title="${s > 0 ? "Back to " + esc(STAGES[s - 1]) : ""}">Back</button>`
+      + (s < 7 ? `<button class="mv fwd" type="button" data-act="stage" data-v="${s + 1}" ${dis}>Move to ${esc(STAGES[s + 1].toLowerCase())}</button>` : "");
+  }
+  const top = isTask
+    ? `<span class="pill p${p}"><i></i>${PRI[p]}</span>`
+    : `<span class="pill ${s === 7 ? "paid" : "stage"}">Step ${s + 1} of 8</span>`;
+  return `<article class="card${it.sample ? " sample" : ""}${busy.has(it.id) ? " busy" : ""}" data-id="${esc(it.id)}" data-kind="${it.kind}">
+    ${isTask ? "" : thumbHtml(it)}
+    <div class="cardTop">${top}${it.sample ? `<span class="ex">Example</span>` : ""}</div>
+    <h3>${esc(it.title)}</h3>
+    ${meta ? `<p class="meta">${meta}</p>` : ""}
+    ${it.note ? `<p class="noteTxt">${esc(it.note)}</p>` : ""}
+    <div class="hov"><div>${ctrls}<button class="openBtn" type="button" data-act="open">Open</button></div></div>
+    <div class="foot"><span>${logN} log ${logN === 1 ? "entry" : "entries"}</span><span>${ago(it.updatedAt)}</span></div>
+  </article>`;
+}
+
+const byUpdated = (a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || ""));
+const byDue = (a, b) => (a.due || "9999").localeCompare(b.due || "9999") || byUpdated(a, b);
+
+function render() {
+  const tasks = items.filter(i => i.kind === "task");
+  const follows = items.filter(i => i.kind === "follow");
+  const urgent = tasks.filter(t => (t.priority || 3) === 1).length;
+  const active = follows.filter(f => (f.stage ?? 0) < 7).length;
+  const pickup = follows.filter(f => f.stage === 6).length;
+  $("stats").innerHTML =
+    `<div class="stat${urgent ? " alert" : ""}"><b>${urgent}</b><span>Urgent tasks</span></div>
+     <div class="stat"><b>${tasks.length}</b><span>Open tasks</span></div>
+     <div class="stat"><b>${active}</b><span>Orders in progress</span></div>
+     <div class="stat"><b>${pickup}</b><span>Ready for pickup</span></div>`;
+  $("lanes").innerHTML = [1, 2, 3, 4].map(p => {
+    const list = tasks.filter(t => (t.priority || 3) === p).sort(byDue);
+    return `<div class="lane" data-p="${p}"><div class="trayHead"><b><i></i>${PRI[p]}</b><span class="count">${list.length}</span></div>
+      ${list.length ? list.map(card).join("") : `<div class="empty">No ${PRI[p].toLowerCase()} tasks</div>`}</div>`;
+  }).join("");
+  $("board").innerHTML = STAGES.map((name, s) => {
+    const list = follows.filter(f => (f.stage ?? 0) === s).sort(byDue);
+    return `<div class="col" data-s="${s}"><div class="trayHead"><div class="row"><b>${name} <small>${s + 1}/8</small></b><span class="count">${list.length}</span></div>
+      <div class="track" aria-hidden="true"><span style="width:${((s + 1) / 8) * 100}%"></span></div></div>
+      ${list.length ? list.map(card).join("") : `<div class="empty">Nothing at this stage</div>`}</div>`;
+  }).join("");
+  $("sampleBanner").hidden = !(canWrite && items.some(i => i.sample));
+  document.querySelectorAll("[data-new]").forEach(b => b.hidden = !canWrite);
+}
+
+/* ---------- writes ---------- */
+const queues = {};
+function persist(id, body) {
+  if (!col) return Promise.resolve();
+  const run = () => col.doc(id).set(body).catch(e => {
+    if (e && e.code === "invalid_argument") { canWrite = false; render(); }
+    setStatus(e && e.code === "quota_exceeded" ? "Storage is full. Delete old cards to add more." : "Couldn't save. Check your connection and try again.", "bad");
+    throw e;
+  });
+  queues[id] = (queues[id] || Promise.resolve()).catch(() => {}).then(run);
+  return queues[id];
+}
+function strip(it) { const { id, ...rest } = it; return rest; }
+function commit(it, autoText) {
+  it.updatedAt = now();
+  if (autoText) it.log = [{ at: it.updatedAt, text: autoText, auto: true }, ...(it.log || [])].slice(0, 200);
+  const i = items.findIndex(x => x.id === it.id);
+  if (i >= 0) items[i] = it; else items.push(it);
+  render();
+  return persist(it.id, strip(it));
+}
+async function remove(id) {
+  items = items.filter(x => x.id !== id); render();
+  if (col) { try { await col.doc(id).delete(); } catch { setStatus("Couldn't delete. Try again.", "bad"); } }
+}
+const newId = () => "i" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+/* ---------- card actions ---------- */
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.new) return openDlg(null, b.dataset.new);
+  const c = b.closest(".card"); if (!c) return;
+  const it = items.find(x => x.id === c.dataset.id); if (!it) return;
+  const act = b.dataset.act;
+  if (act === "open") return openDlg(it);
+  if (act === "view") return viewImage(thumbSrc(it.thumb), "Thumbnail for " + it.title);
+  if (act === "upload") return canUpload() && pick(it.id);
+  if (!canWrite) return;
+  if (act === "pri") {
+    const p = +b.dataset.v; if (p === (it.priority || 3)) return;
+    commit({ ...it, priority: p }, `Priority ${PRI[it.priority || 3]} → ${PRI[p]}`);
+  }
+  if (act === "stage") {
+    const s = +b.dataset.v; if (s < 0 || s > 7) return;
+    commit({ ...it, stage: s }, `Stage ${STAGES[it.stage ?? 0]} → ${STAGES[s]}`);
+  }
+});
+document.addEventListener("dblclick", e => { const c = e.target.closest(".card"); if (c && !e.target.closest("button")) { const it = items.find(x => x.id === c.dataset.id); if (it) openDlg(it); } });
+
+/* ---------- side sheet ---------- */
+const dlg = $("dlg");
+$("fPri").innerHTML = [1, 2, 3, 4].map(p => `<option value="${p}">${PRI[p]}</option>`).join("");
+$("fStage").innerHTML = STAGES.map((s, i) => `<option value="${i}">${i + 1}. ${s}</option>`).join("");
+let editing = null, draftLog = [], delArmed = false;
+
+function openDlg(it, kind) {
+  editing = it ? { ...it } : { id: newId(), kind, priority: 3, stage: 0, log: [], createdAt: now() };
+  const isTask = editing.kind === "task";
+  $("dlgTitle").textContent = it ? (isTask ? "Task" : "Follow-up") : (isTask ? "New task" : "New follow-up");
+  $("fTitle").value = editing.title || "";
+  $("fClient").value = editing.client || "";
+  $("fDue").value = editing.due || "";
+  $("fPri").value = editing.priority || 3;
+  $("fStage").value = editing.stage ?? 0;
+  $("fQty").value = editing.qty || "";
+  $("fNote").value = editing.note || "";
+  $("wrapPri").hidden = !isTask; $("wrapStage").hidden = isTask; $("wrapQty").hidden = isTask;
+  $("wrapThumb").hidden = isTask || (!canUpload() && !thumbSrc(editing.thumb));
+  origThumb = editing.thumb || null; drawThumb();
+  $("noteLbl").textContent = isTask ? "Priority note" : "Order note";
+  $("fNote").placeholder = isTask ? "Why this level, what's blocking it, what's next" : "Sizes, colors, balance, pickup details";
+  draftLog = [];
+  $("fLog").value = ""; $("err").hidden = true;
+  $("del").hidden = !it || !canWrite; delArmed = false; $("del").classList.remove("arm"); $("del").textContent = "Delete";
+  [...$("form").elements].forEach(el => { if (el.id !== "close" && el.id !== "cancel") el.disabled = !canWrite; });
+  drawLog();
+  try { dlg.showModal(); } catch { dlg.setAttribute("open", ""); }
+  setTimeout(() => (it ? $("fNote") : $("fTitle")).focus(), 40);
+}
+let origThumb = null, sheetBusy = false;
+function drawThumb() {
+  const src = editing && thumbSrc(editing.thumb);
+  $("thumbBox").innerHTML = sheetBusy ? "Uploading" : src ? `<img src="${esc(src)}" alt="Current thumbnail">` : "No image";
+  $("thumbUp").textContent = src ? "Replace image" : "Upload image";
+  $("thumbUp").hidden = !canUpload(); $("thumbRm").hidden = !src || !canUpload();
+  $("thumbUp").disabled = sheetBusy;
+}
+async function sheetUpload(file) {
+  if (!editing || !canUpload()) return;
+  const target = editing; sheetBusy = true; drawThumb();
+  try {
+    const t = await uploadImage(file);
+    if (editing === target) { if (editing.thumb && editing.thumb !== origThumb) dropAsset(editing.thumb); editing.thumb = t; }
+    else dropAsset(t);
+  } catch (e) { $("err").textContent = e && e.message === "type" ? "That file isn't an image. Use a JPG, PNG or WebP." : "Couldn't upload the image. Try a smaller file."; $("err").hidden = false; }
+  sheetBusy = false; drawThumb();
+}
+$("thumbUp").onclick = () => pick("sheet");
+$("thumbRm").onclick = () => { if (!editing) return; if (editing.thumb && editing.thumb !== origThumb) dropAsset(editing.thumb); editing.thumb = null; drawThumb(); };
+function drawLog() {
+  const all = [...draftLog, ...(editing.log || [])];
+  $("logCount").textContent = all.length ? all.length + (all.length === 1 ? " entry" : " entries") : "";
+  $("log").innerHTML = all.length
+    ? all.map(l => `<li class="${l.auto ? "auto" : ""}"><time>${fmtTime(l.at)}</time><span>${esc(l.text)}</span></li>`).join("")
+    : `<li class="none">No entries yet. Add what happened, who you talked to, or what's next.</li>`;
+}
+function addLog() {
+  const v = $("fLog").value.trim(); if (!v) return;
+  draftLog.unshift({ at: now(), text: v }); $("fLog").value = ""; drawLog(); $("fLog").focus();
+}
+$("addLog").onclick = addLog;
+$("fLog").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); addLog(); } });
+const closeDlg = (saved) => {
+  if (saved !== true && editing && editing.thumb && editing.thumb !== origThumb) dropAsset(editing.thumb);
+  dlg.close ? dlg.close() : dlg.removeAttribute("open"); editing = null;
+};
+$("close").onclick = closeDlg; $("cancel").onclick = closeDlg;
+dlg.addEventListener("click", e => { if (e.target === dlg) closeDlg(); });
+$("del").onclick = () => {
+  if (!delArmed) { delArmed = true; $("del").classList.add("arm"); $("del").textContent = "Confirm delete"; return; }
+  const id = editing.id, t = items.find(x => x.id === id)?.thumb; closeDlg(); remove(id); dropAsset(t);
+};
+$("form").addEventListener("submit", e => {
+  e.preventDefault(); if (!canWrite || !editing) return;
+  const title = $("fTitle").value.trim();
+  if (!title) { $("err").textContent = "Add a title so the card can be found on the board."; $("err").hidden = false; return; }
+  const prev = items.find(x => x.id === editing.id);
+  const it = { ...editing, title, client: $("fClient").value.trim(), due: $("fDue").value, note: $("fNote").value.trim() };
+  const autos = [];
+  if (it.kind === "task") {
+    it.priority = +$("fPri").value;
+    if (!prev) autos.push(`Created as ${PRI[it.priority]}`);
+    else if ((prev.priority || 3) !== it.priority) autos.push(`Priority ${PRI[prev.priority || 3]} → ${PRI[it.priority]}`);
+  } else {
+    it.stage = +$("fStage").value; it.qty = $("fQty").value.trim();
+    if (!prev) autos.push(`Created at ${STAGES[it.stage]}`);
+    else if ((prev.stage ?? 0) !== it.stage) autos.push(`Stage ${STAGES[prev.stage ?? 0]} → ${STAGES[it.stage]}`);
+  }
+  if (prev && prev.note !== it.note && it.note) autos.push("Note updated");
+  if (it.kind === "follow" && it.thumb !== origThumb) {
+    autos.push(!it.thumb ? "Thumbnail removed" : origThumb ? "Thumbnail replaced" : "Thumbnail added");
+    dropAsset(origThumb);
+  }
+  if (!it.thumb) delete it.thumb;
+  const t = now();
+  it.log = [...draftLog, ...autos.map(a => ({ at: t, text: a, auto: true })), ...(it.log || [])].slice(0, 200);
+  closeDlg(true);
+  commit(it);
+});
+dlg.addEventListener("close", () => { editing = null; });
+
+$("clearSamples").onclick = async () => {
+  const ids = items.filter(i => i.sample).map(i => i.id);
+  for (const id of ids) await remove(id);
+};
+
+/* ---------- status + boot ---------- */
+function setStatus(t, kind) { const el = $("status"); el.querySelector("span").textContent = t; el.className = "status" + (kind ? " " + kind : ""); }
+setInterval(() => { if (!dlg.open) render(); }, 60000);
+render();
+
+(async () => {
+  window.claude?.use?.("assets").then(a => { assets = a; if (!dlg.open) render(); }).catch(() => {});
+  try { db = await window.claude?.use?.("db"); } catch { db = null; }
+  if (!db) { setStatus("Not saving here. Open this page on claude.ai while signed in to keep your cards.", "bad"); return; }
+  try {
+    const user = await window.claude.use("user");
+    const w = user ? await user.can("data.write") : null;
+    if (w === false) { canWrite = false; render(); }
+  } catch {}
+  col = db.collection("items");
+  const timer = setTimeout(() => { if (!live) setStatus("Can't reach saved cards yet. Showing what's loaded.", "bad"); }, 10000);
+  col.onSnapshot(snap => {
+    items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!snap.metadata.fromCache) { live = true; clearTimeout(timer); }
+    if (!live) setStatus("Loading");
+    else if (!items.length) setStatus("Empty board. Add your first task or follow-up.", "live");
+    else setStatus(canWrite ? "Saved in this browser" : "View only", "live");
+    if (!dlg.open) render(); else { const keep = editing; render(); editing = keep; }
+  }, err => {
+    clearTimeout(timer);
+    setStatus(err.code === "revoked" ? "Access changed. Showing the last loaded cards." : "Lost the connection to saved cards. Reload to try again.", "bad");
+  });
+})();
+</script>
+
+</body></html>
